@@ -1,67 +1,49 @@
--- Bookstore Database — Phillip's first GitHub portfolio project
--- Meta Database Engineer, Course 1: Introduction to Databases
--- Built and verified Tue Nov 17, 2026 on the iMac (Postgres.app, database phillip).
--- Postgres version: SERIAL instead of MySQL AUTO_INCREMENT.
--- Verified result: 90-day filter returns Dune, Frank Herbert, 3 copies, stock 10.
--- The Aug 1 order (5 copies) is correctly excluded.
+# Bookstore Database — Phillip's First GitHub Portfolio Project
 
-CREATE TABLE books (
-  book_id SERIAL PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  author VARCHAR(255),
-  isbn VARCHAR(13) UNIQUE,
-  publisher VARCHAR(255),
-  publication_year INT,
-  genre VARCHAR(100),
-  format VARCHAR(20),
-  price DECIMAL(10,2) NOT NULL,
-  stock_quantity INT NOT NULL DEFAULT 0
-);
+> Built in Meta Database Engineer, Course 1: Introduction to Databases (Day 1, Nov 15, 2026).
+> Status: tables built Tue Nov 17 on the iMac — all three CREATE TABLEs ran, Dune + 2 sample orders inserted, 90-day filter returned Dune, Frank Herbert, 3 copies, stock 10. Project runs end to end.
+> Posted to GitHub Wed Nov 18, 2026 as a public repo.
 
-CREATE TABLE orders (
-  order_id SERIAL PRIMARY KEY,
-  customer_id INT NOT NULL,
-  order_date DATE,
-  total_amount DECIMAL(10,2),
-  status VARCHAR(20)
-);
+## What it is
 
-CREATE TABLE order_items (
-  order_item_id SERIAL PRIMARY KEY,
-  order_id INT NOT NULL,
-  book_id INT NOT NULL,
-  quantity INT NOT NULL,
-  unit_price DECIMAL(10,2) NOT NULL,
-  FOREIGN KEY (order_id) REFERENCES orders(order_id),
-  FOREIGN KEY (book_id) REFERENCES books(book_id)
-);
+A small bookstore database, designed in Meta Database Engineer Course 1
+(Introduction to Databases). It answers one business question — which books sold
+the most, and do we have enough in stock?
 
--- First book: Dune
-INSERT INTO books (title, author, isbn, publisher, publication_year, genre, format, price, stock_quantity)
-VALUES ('Dune', 'Frank Herbert', '9780441172719', 'Ace Books', 1965, 'Science Fiction', 'paperback', 15.99, 10);
+Day 1 result: 100% on the first quiz (pass mark 80%).
 
--- Recent order (Nov 10, 2026 — inside 90 days): 3 copies of Dune
-INSERT INTO orders (order_id, customer_id, order_date, total_amount, status)
-VALUES (1, 101, '2026-11-10', 47.97, 'delivered');
-INSERT INTO order_items (order_item_id, order_id, book_id, quantity, unit_price)
-VALUES (1, 1, 1, 3, 15.99);
+## The schema (Phillip's own design)
 
--- Old order (Aug 1, 2026 — outside 90 days): 5 copies of Dune.
--- The filter below must NOT count these.
-INSERT INTO orders (order_id, customer_id, order_date, total_amount, status)
-VALUES (2, 102, '2026-08-01', 79.95, 'delivered');
-INSERT INTO order_items (order_item_id, order_id, book_id, quantity, unit_price)
-VALUES (2, 2, 1, 5, 15.99);
+Three tables. One order can hold many books, and one book can appear in many
+orders, so Order_Items is the junction table in the middle (many-to-many).
 
--- Query 1: Which books sold the most in the last 90 days, and how many are in stock?
--- Expected: Dune | Frank Herbert | 3 | 10
-SELECT books.title, books.author,
-       SUM(order_items.quantity) AS copies_sold,
-       books.stock_quantity
-FROM order_items
-JOIN orders ON order_items.order_id = orders.order_id
-JOIN books ON order_items.book_id = books.book_id
-WHERE orders.order_date >= CURRENT_DATE - INTERVAL '90 days'
-GROUP BY books.book_id, books.title, books.author, books.stock_quantity
-ORDER BY copies_sold DESC;
+- Books — book_id (PK), title, author, isbn (UNIQUE, 13 digits), publisher,
+  publication_year, genre, format, price, stock_quantity
+- Orders — order_id (PK), customer_id, order_date, total_amount, status
+- Order_Items — order_item_id (PK), order_id (FK), book_id (FK), quantity,
+  unit_price — the price at the time of purchase
 
+## Build it — PostgreSQL (Phillip's own machine)
+
+Same tables as MySQL, one change: SERIAL PRIMARY KEY instead of
+INT AUTO_INCREMENT PRIMARY KEY. On the iMac: Postgres.app, database phillip,
+no password, prompt phillip=#.
+
+## Verified result
+
+Query 1 (which books sold the most in the last 90 days, and how many are in
+stock) returns one row: Dune, Frank Herbert, 3 copies, stock 10. The Aug 1
+order (5 copies) is correctly excluded.
+
+## What I learned
+
+- Table vs record: a table holds all the records of one kind; a record is one row.
+- CRUD: Create = INSERT, Read = SELECT, Update = UPDATE, Delete = DELETE.
+- SQL execution order: FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT.
+- MySQL vs Postgres: in MySQL a schema is the database; in Postgres a schema is
+  a folder inside a database (tables live in public).
+
+## Next steps
+
+1. Design the Customers table.
+2. Next Coursera lab: design the mobile-devices table in cm_devices.
