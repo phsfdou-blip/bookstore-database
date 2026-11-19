@@ -2,7 +2,7 @@
 -- Meta Database Engineer, Course 1: Introduction to Databases
 -- Built and verified Tue Nov 17, 2026 on the iMac (Postgres.app, database phillip).
 -- Postgres version: SERIAL instead of MySQL AUTO_INCREMENT.
--- Verified result: 90-day filter returns Dune, Frank Herbert, 3 copies, stock 10.c
+-- Verified result: 90-day filter returns Dune, Frank Herbert, 3 copies, stock 10.
 -- The Aug 1 order (5 copies) is correctly excluded.
 
 CREATE TABLE books (
