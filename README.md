@@ -1,4 +1,4 @@
--- Bookstore Database — Phillip's first GitHub portfolio project
+-- #Bookstore Database — Phillip's first GitHub portfolio project
 -- Meta Database Engineer, Course 1: Introduction to Databases
 -- Built and verified Tue Nov 17, 2026 on the iMac (Postgres.app, database phillip).
 -- Postgres version: SERIAL instead of MySQL AUTO_INCREMENT.
